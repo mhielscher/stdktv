@@ -63,6 +63,10 @@ else
                 <td><input type="text" name="uf" required /></td>
             </tr>
             <tr>
+                <td>Post Weight:</td>
+                <td><input type="text" name="postweight" required /></td>
+            </tr>
+            <tr>
                 <td><input id="submit-button" type="submit" value="Calculate" /></td>
             </tr>
         </table>
@@ -76,11 +80,12 @@ else
             $("#stdktv-form").submit(function (ev) {
                 ev.preventDefault();
                 var $form = $(this),
-                    time = $form.find( "input[name='time']" ).val(),
-                    days = $form.find( "input[name='days']" ).val(),
-                    prebun = $form.find( "input[name='prebun']" ).val(),
-                    postbun = $form.find( "input[name='postbun']" ).val(),
-                    uf = $form.find( "input[name='uf']" ).val(),
+                    time = $form.find("input[name='time']" ).val(),
+                    days = $form.find("input[name='days']" ).val(),
+                    prebun = $form.find("input[name='prebun']" ).val(),
+                    postbun = $form.find("input[name='postbun']" ).val(),
+                    uf = $form.find("input[name='uf']" ).val(),
+                    postweight = $form.find("input[name='postweight']").val(),
                     url = $form.attr("action");
 
                 $.post(
@@ -90,7 +95,8 @@ else
                         days: days,
                         prebun: prebun,
                         postbun: postbun,
-                        uf: uf
+                        uf: uf,
+                        postweight: postweight
                     },
                     function (data) {
                         $("span.answer").text(data.answer);
