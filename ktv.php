@@ -1,10 +1,16 @@
 <?php
 
 if (isset($_GET) && isset($_GET['answer']))
-    //$answer = filter_var($_GET['answer'], FILTER_SANITIZE_NUMBER_FLOAT, FILTER_NULL_ON_FAILURE);
-    $answer = $_GET['answer'];
+{
+    $spKtV = filter_var($_GET['sp'], FILTER_SANITIZE_NUMBER_FLOAT, FILTER_NULL_ON_FAILURE | FILTER_FLAG_ALLOW_FRACTION);
+    $stdKtV = filter_var($_GET['std'], FILTER_SANITIZE_NUMBER_FLOAT, FILTER_NULL_ON_FAILURE | FILTER_FLAG_ALLOW_FRACTION);
+}
 else
-    $answer = "";
+{
+    $spKtV = "";
+    $stdKtV = "";
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -71,7 +77,8 @@ else
             </tr>
         </table>
         </form>
-        <h2>Std Kt/V = <span class="answer"><?php echo $answer; ?></span></h2>
+        <h2>sp Kt/V = <span class="spktv"><?php echo $answer; ?></span></h2>
+        <h2>std Kt/V = <span class="stdktv"><?php echo $answer; ?></span></h2>
 
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.js"></script>
         <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.8.2.js"><\/script>')</script>
@@ -99,7 +106,8 @@ else
                         postweight: postweight
                     },
                     function (data) {
-                        $("span.answer").text(data.answer);
+                        $("span.spktv").text(data.sp);
+                        $("span.stdktv").text(data.std);
                         console.log("Added answer: ");
                         console.log(data);
                     }

@@ -19,27 +19,38 @@ if (isset($_POST) && isset($_POST['time']))
 	$postbun = filter_var($_POST['postbun'], FILTER_SANITIZE_NUMBER_FLOAT, FILTER_NULL_ON_FAILURE | FILTER_FLAG_ALLOW_FRACTION);
 	$uf = filter_var($_POST['uf'], FILTER_SANITIZE_NUMBER_FLOAT, FILTER_NULL_ON_FAILURE | FILTER_FLAG_ALLOW_FRACTION);
 	$postweight = filter_var($_POST['postweight'], FILTER_SANITIZE_NUMBER_FLOAT, FILTER_NULL_ON_FAILURE | FILTER_FLAG_ALLOW_FRACTION);
-	/*
-	if ($_POST['access'] == "avf")
-		$C = 35.0; // AVF access constant
+	
+	if ($_POST['access'] == "cath")
+		$C = 22.0; // AVF access constant
 	else
-		$C = 22.0; // Central catheter constant
-	*/
+		$C = 35.0; // Central catheter constant
+	
 	// Calculations
 	//$water_volume = 2.447 - (0.09516 * $age) + 0.1074 * $height + 0.3362 * $postWeight;
-	$spKtV = -log($postbun/$prebun - 0.008*$time) + (4 - 3.5*$postbun/$prebun) * ($uf/$postWeight);
+	//$spKtV = -log($postbun/$prebun - 0.008*$time) + (4 - 3.5*$postbun/$prebun) * ($uf/$postWeight);
+	//$eKtV = 0.924 * $spKtV - 0.395 * $spKtV/$time + 0.056;
+	//$stdKtV = (168 * (1 - exp(-$eKtV))/$time) / ((1 - exp(-$eKtV))/$spKtV + (168 / ($days*$time) - 1));
+
+	
+	//$spKtV = log($prebun/$postbun);
+	//$eKtV = $spKtV * ($time/($time+$C));
+	
+	// Daugirdas II
+	$R = $postbun/$prebun;
+	$GFAC = 0.0174 / (7/$days - $time/24);
+	$spKtV = -log($R - $GFAC * $time) + (4 - 3.5*$R) * 0.55 * $uf/$postweight;
+
 	$eKtV = 0.924 * $spKtV - 0.395 * $spKtV/$time + 0.056;
-	$stdKtV = (168 * (1 - exp(-$eKtV))/$time) / ((1 - exp(-$eKtV))/$spKtV + (168 / ($days*$time) - 1));
+	$stdKtV = ((10080*(1-exp(-$eKtV)))/$time)/(((1-exp(-$eKtV))/$spKtV)+(10080/($days*$time))-1);
 
 	header("Content-type: text/json");
 	$return = array();
-	$return['answer'] = $stdKtV;
-	$return['days'] = $days;
-	$return['uf'] = $uf;
+	$return['std'] = $stdKtV;
+	$return['sp'] = $spKtV;
 	echo json_encode($return);
 }
 
 else
-	header("Location: /ktv.php?answer=Please+enable+Javascript.");
+	header("Location: /ktv.php?sp=Please+enable+Javascript.");
 
 ?>
