@@ -26,7 +26,8 @@ if (isset($_POST) && isset($_POST['time']))
 		$C = 35.0; // Central catheter constant
 	
 	// Calculations
-	//$water_volume = 2.447 - (0.09516 * $age) + 0.1074 * $height + 0.3362 * $postWeight;
+	//$water_volume = 2.447 - (0.09516 * $age) + 0.1074 * $height + 0.3362 * $postweight;
+	$water_volume = .2265 * $postweight * 3;
 	//$spKtV = -log($postbun/$prebun - 0.008*$time) + (4 - 3.5*$postbun/$prebun) * ($uf/$postWeight);
 	//$eKtV = 0.924 * $spKtV - 0.395 * $spKtV/$time + 0.056;
 	//$stdKtV = (168 * (1 - exp(-$eKtV))/$time) / ((1 - exp(-$eKtV))/$spKtV + (168 / ($days*$time) - 1));
@@ -37,8 +38,13 @@ if (isset($_POST) && isset($_POST['time']))
 	
 	// Daugirdas II
 	$R = $postbun/$prebun;
-	$GFAC = 0.0174 / (7/$days - $time/24);
-	$spKtV = -log($R - $GFAC * $time) + (4 - 3.5*$R) * 0.55 * $uf/$postweight;
+	$short_break_GFAC = 0.0174 / (floor(7/$days) - $time/24);
+	$long_break_GFAC = 0.0174 / (ceil(7/$days) - $time/24);
+	$avg_GFAC = 0.0174 / (7/$days - $time/24);
+	$short_break_spKtV = -log($R - $short_break_GFAC * $time) + (4 - 3.5*$R) * 0.55 * $uf/$water_volume;
+	$long_break_spKtV = -log($R - $long_break_GFAC * $time) + (4 - 3.5*$R) * 0.55 * $uf/$water_volume;
+	$spKtV = -log($R - $avg_GFAC * $time) + (4 - 3.5*$R) * 0.55 * $uf/$water_volume;
+
 
 	$eKtV = 0.924 * $spKtV - 0.395 * $spKtV/$time + 0.056;
 	$stdKtV = ((10080*(1-exp(-$eKtV)))/$time)/(((1-exp(-$eKtV))/$spKtV)+(10080/($days*$time))-1);
@@ -46,11 +52,15 @@ if (isset($_POST) && isset($_POST['time']))
 	header("Content-type: text/json");
 	$return = array();
 	$return['std'] = $stdKtV;
-	$return['sp'] = $spKtV;
+	$return['short_sp'] = $short_break_spKtV;
+	$return['long_sp'] = $long_break_spKtV;
+	$return['avg_sp'] = $spKtV;
 	echo json_encode($return);
 }
 
 else
-	header("Location: /ktv.php?sp=Please+enable+Javascript.");
+{
+	header("Location: /ktv.php?sp=$spKtV&std=$stdKtV");
+}
 
 ?>

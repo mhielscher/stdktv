@@ -1,6 +1,6 @@
 <?php
 
-if (isset($_GET) && isset($_GET['answer']))
+if (isset($_GET) && isset($_GET['sp']))
 {
     $spKtV = filter_var($_GET['sp'], FILTER_SANITIZE_NUMBER_FLOAT, FILTER_NULL_ON_FAILURE | FILTER_FLAG_ALLOW_FRACTION);
     $stdKtV = filter_var($_GET['std'], FILTER_SANITIZE_NUMBER_FLOAT, FILTER_NULL_ON_FAILURE | FILTER_FLAG_ALLOW_FRACTION);
@@ -52,7 +52,21 @@ else
             <tr>
                 <td>Treatments per week:</td>
                 <td><input type="text" name="days" required /></td>
-                <td><em>decimals okay</em></td>
+                <td><em>decimals okay</em>
+                    <!--
+                    insert dropdown with common schedules
+                    3 days/week
+                    every other day
+                    4 days/week
+                    2 on / 1 off
+                    5 days/week
+                    3 on / 1 off
+                    6 days / week
+                    every day
+                    other
+                        - enter [treatments] per [time period]
+                    -->
+                </td>
             </tr>
             <tr>
                 <td></td>
@@ -106,7 +120,7 @@ else
                         postweight: postweight
                     },
                     function (data) {
-                        $("span.spktv").text(data.sp);
+                        $("span.spktv").text(data.long_sp+" - "+data.short_sp);
                         $("span.stdktv").text(data.std);
                         console.log("Added answer: ");
                         console.log(data);
