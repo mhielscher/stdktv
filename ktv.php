@@ -27,7 +27,7 @@ else
         <meta name="viewport" content="width=device-width" />
         
         <link rel="stylesheet" href="css/normalize.min.css" type="text/css" />
-        <!--<link rel="stylesheet" href="css/main.css" type="text/css" />-->
+        <link rel="stylesheet" href="css/main.css" type="text/css" />
         
 	    <script src="js/vendor/modernizr-latest.js"></script>
         <!-- <script>
@@ -42,57 +42,65 @@ else
 		</script> -->
     </head>
     <body>
-        <h1>Weekly Standardized Kt/V</h1>
-        <form id="stdktv-form" action="/calculate.php" method="GET">
-        <table>
-            <tr>
-                <td>Treatment time:</td>
-                <td><input type="text" name="time" required /></td>
-            </tr>
-            <tr>
-                <td>Treatments per week:</td>
-                <td><input type="text" name="days" required /></td>
-                <td><em>decimals okay</em>
-                    <!--
-                    insert dropdown with common schedules
-                    3 days/week
-                    every other day
-                    4 days/week
-                    2 on / 1 off
-                    5 days/week
-                    3 on / 1 off
-                    6 days / week
-                    every day
-                    other
-                        - enter [treatments] per [time period]
-                    -->
-                </td>
-            </tr>
-            <tr>
-                <td></td>
-                <td>Pre-dialysis</td>
-                <td>Post-dialysis</td>
-            </tr>
-            <tr>
-                <td>Blood Urea Nitrogen:</td>
-                <td><input type="text" name="prebun" required /></td>
-                <td><input type="text" name="postbun" required /></td>
-            </tr>
-            <tr>
-                <td>Total UF:</td>
-                <td><input type="text" name="uf" required /></td>
-            </tr>
-            <tr>
-                <td>Post Weight:</td>
-                <td><input type="text" name="postweight" required /></td>
-            </tr>
-            <tr>
-                <td><input id="submit-button" type="submit" value="Calculate" /></td>
-            </tr>
-        </table>
-        </form>
-        <h2>sp Kt/V = <span class="spktv"><?php echo $answer; ?></span></h2>
-        <h2>std Kt/V = <span class="stdktv"><?php echo $answer; ?></span></h2>
+        <div class="content">
+            <form id="stdktv-form" action="/calculate.php" method="GET">
+            <table id="stdktv-table">
+                <th>
+                    <td colspan="3">
+                        Weekly Standardized Kt/V
+                    </td>
+                </th>
+                <tr>
+                    <td>Treatment time:</td>
+                    <td><input type="text" name="time" required /></td>
+                </tr>
+                <tr>
+                    <td>Treatments per week:</td>
+                    <td><input type="text" name="days" required /></td>
+                    <td><em>decimals okay</em>
+                        <!--
+                        insert dropdown with common schedules
+                        3 days/week
+                        every other day
+                        4 days/week
+                        2 on / 1 off
+                        5 days/week
+                        3 on / 1 off
+                        6 days / week
+                        every day
+                        other
+                            - enter [treatments] per [time period]
+                        -->
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>Pre-dialysis</td>
+                    <td>Post-dialysis</td>
+                </tr>
+                <tr>
+                    <td>Blood Urea Nitrogen:</td>
+                    <td><input type="text" name="prebun" required /></td>
+                    <td><input type="text" name="postbun" required /></td>
+                </tr>
+                <tr>
+                    <td>Total UF:</td>
+                    <td><input type="text" name="uf" required /></td>
+                </tr>
+                <tr>
+                    <td>Post Weight:</td>
+                    <td><input type="text" name="postweight" required /></td>
+                </tr>
+                <tr>
+                    <td><input id="submit-button" type="submit" value="Calculate" /></td>
+                </tr>
+                <tr>
+                    <td>sp Kt/V = <span class="spktv"><?php echo round($spKtV, 2); ?></span></td>
+                    <td>std Kt/V = <span class="stdktv"><?php echo round($stdKtV, 2); ?></span></td>
+                </tr>
+            </table>
+            </form>
+        </div>
 
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.js"></script>
         <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.8.2.js"><\/script>')</script>
@@ -120,8 +128,8 @@ else
                         postweight: postweight
                     },
                     function (data) {
-                        $("span.spktv").text(data.long_sp+" - "+data.short_sp);
-                        $("span.stdktv").text(data.std);
+                        $("span.spktv").text(data.long_sp.toPrecision(3)+" - "+data.short_sp.toPrecision(3));
+                        $("span.stdktv").text(data.std.toPrecision(3));
                         console.log("Added answer: ");
                         console.log(data);
                     }
