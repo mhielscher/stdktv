@@ -1,8 +1,8 @@
 <?php
 
-if (isset($_GET) && isset($_GET['sp']))
+if (isset($_GET) && isset($_GET['avg_sp']))
 {
-    $spKtV = filter_var($_GET['sp'], FILTER_SANITIZE_NUMBER_FLOAT, FILTER_NULL_ON_FAILURE | FILTER_FLAG_ALLOW_FRACTION);
+    $spKtV = filter_var($_GET['avg_sp'], FILTER_SANITIZE_NUMBER_FLOAT, FILTER_NULL_ON_FAILURE | FILTER_FLAG_ALLOW_FRACTION);
     $stdKtV = filter_var($_GET['std'], FILTER_SANITIZE_NUMBER_FLOAT, FILTER_NULL_ON_FAILURE | FILTER_FLAG_ALLOW_FRACTION);
 }
 else
@@ -26,38 +26,37 @@ else
         <meta name="HandheldFriendly" content="True" />
         <meta name="viewport" content="width=device-width" />
         
-        <link rel="stylesheet" href="css/normalize.min.css" type="text/css" />
-        <link rel="stylesheet" href="css/main.css" type="text/css" />
+        <link rel="stylesheet" src="//normalize-css.googlecode.com/svn/trunk/normalize.css" />
+        <!-- <link rel="stylesheet" href="css/vendor/normalize.min.css" type="text/css" /> -->
+        <link rel="stylesheet" href="/css/main.css" type="text/css" />
         
-	    <script src="js/vendor/modernizr-latest.js"></script>
-        <!-- <script>
-			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-			(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-			})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-			ga('create', 'UA-35525132-1', 'auto');
-			ga('send', 'pageview');
-
-		</script> -->
+	    <script src="/js/vendor/modernizr-latest.js"></script>
     </head>
     <body>
-        <div class="content">
+        <div class="top-content">
+            <p>This Kt/V calculator is used to estimate maintenance hemodialysis effectiveness. It uses multiple formulas depending on how much data you enter.</p>
+        </div>
+        <div class="calculator">
             <form id="stdktv-form" action="/calculate.php" method="GET">
             <table id="stdktv-table">
-                <th>
+                <tr class="table-header">
                     <td colspan="3">
                         Weekly Standardized Kt/V
                     </td>
-                </th>
+                </tr>
                 <tr>
                     <td>Treatment time:</td>
-                    <td><input type="text" name="time" required /></td>
+                    <td class="input-cell"><input type="text" name="time" size="7" required /></td>
                 </tr>
                 <tr>
                     <td>Treatments per week:</td>
-                    <td><input type="text" name="days" required /></td>
-                    <td><em>decimals okay</em>
+                    <td class="input-cell"><input type="text" id="days-input" name="days" size="7" required /></td>
+                    <td>
+                        <select id="schedules-select" name="schedules">
+                            <option value=""><em>Non-weekly schedules:</em></option>
+                            <option value="4.6667">2 on / 1 off</option>
+                            <option value="3.5">Every other day</option>
+                        </select>
                         <!--
                         insert dropdown with common schedules
                         3 days/week
@@ -80,19 +79,19 @@ else
                 </tr>
                 <tr>
                     <td>Blood Urea Nitrogen:</td>
-                    <td><input type="text" name="prebun" required /></td>
-                    <td><input type="text" name="postbun" required /></td>
+                    <td class="input-cell"><input type="text" name="prebun" size="7" required /></td>
+                    <td class="input-cell"><input type="text" name="postbun" size="7" required /></td>
                 </tr>
                 <tr>
                     <td>Total UF:</td>
-                    <td><input type="text" name="uf" required /></td>
+                    <td class="input-cell"><input type="text" name="uf" size="7" required /></td>
                 </tr>
                 <tr>
                     <td>Post Weight:</td>
-                    <td><input type="text" name="postweight" required /></td>
+                    <td class="input-cell"><input type="text" name="postweight" size="7" required /></td>
                 </tr>
                 <tr>
-                    <td><input id="submit-button" type="submit" value="Calculate" /></td>
+                    <td class="input-cell"><input id="submit-button" type="submit" value="Calculate" /></td>
                 </tr>
                 <tr>
                     <td>sp Kt/V = <span class="spktv"><?php echo round($spKtV, 2); ?></span></td>
@@ -102,9 +101,22 @@ else
             </form>
         </div>
 
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.js"></script>
-        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.8.2.js"><\/script>')</script>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.js"></script>
+        <script>window.jQuery || document.write('<script src="/js/vendor/jquery-1.11.1.js"><\/script>')</script>
 
+        <script type="text/javascript">
+
+            // Original JavaScript code by Chirp Internet: www.chirp.com.au
+            // Please acknowledge use of this code by including this header.
+
+            function getCookie(name)
+            {
+                var re = new RegExp(name + "=([^;]+)");
+                var value = re.exec(document.cookie);
+                return (value != null) ? unescape(value[1]) : null;
+            }
+
+        </script>
         <script type="text/javascript">
             $("#stdktv-form").submit(function (ev) {
                 ev.preventDefault();
@@ -128,13 +140,18 @@ else
                         postweight: postweight
                     },
                     function (data) {
-                        $("span.spktv").text(data.long_sp.toPrecision(3)+" - "+data.short_sp.toPrecision(3));
+                        $("span.spktv").text(data.avg_sp.toPrecision(3));
                         $("span.stdktv").text(data.std.toPrecision(3));
                         console.log("Added answer: ");
                         console.log(data);
                     }
                 );
                 console.log("Did submit.");
+            });
+            
+            $("#schedules-select").change(function (ev) {
+                if ($(this).val() !== "")
+                    $("#days-input").val($(this).val());
             });
         </script>
     </body>
