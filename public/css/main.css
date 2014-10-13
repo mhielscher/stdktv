@@ -3,12 +3,14 @@
 body {
     font-family: "Open Sans", Tacoma, sans-serif;
     font-size: 14px;
-    max-width: 450px;
+    max-width: 800px;
     margin: 0 auto;
 }
 
 .top-content {
     text-align: justify;
+    max-width: 450px;
+    margin: 0 auto;
 }
 
 .calculator
@@ -19,6 +21,12 @@ body {
     border: 1px solid gray;
     border-radius: 6px;
     padding: 8px;
+}
+
+.footer-ad
+{
+    max-width: 728px;
+    margin: 12px auto 0 auto;
 }
 
 #stdktv-table
@@ -44,4 +52,7 @@ body {
     
 }
 
-
+.advanced
+{
+    display: none;
+}

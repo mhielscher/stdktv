@@ -7,8 +7,8 @@ if (isset($_GET) && isset($_GET['avg_sp']))
 }
 else
 {
-    $spKtV = "";
-    $stdKtV = "";
+    $spKtV = 0.0;
+    $stdKtV = 0.0;
 }
 
 ?>
@@ -34,7 +34,7 @@ else
     </head>
     <body>
         <div class="top-content">
-            <p>This Kt/V calculator is used to estimate maintenance hemodialysis effectiveness. It uses multiple formulas depending on how much data you enter.</p>
+            <p>Kt/V is a measure of the effectiveness of dialysis. Single pool Kt/V (spKt/V) measures the effectiveness of a single treatment. Standardized Kt/V (stdKt/V) estimates the weekly effectiveness of a dialysis regimen.</p>
         </div>
         <div class="calculator">
             <form id="stdktv-form" action="/calculate.php" method="GET">
@@ -91,32 +91,65 @@ else
                     <td class="input-cell"><input type="text" name="postweight" size="7" required /></td>
                 </tr>
                 <tr>
+                    <td colspan="2">
+                        <a href="#advanced">Advanced</a>
+                    </td>
+                </tr>
+                <tr class="advanced">
+                    <td>Age:</td>
+                    <td class="input-cell"><input type="text" name="age" size="3" /></td>
+                </tr>
+                <tr class="advanced">
+                    <td>Height:</td>
+                    <td class="input-cell"><input type="text" name="height" size="5" /></td>
+                </tr>
+                <tr class="advanced">
+                    <td>
+                        Male <input type="radio" name="sex" value="male" />
+                    </td>
+                    <td>
+                        Female <input type="radio" name="sex" value="female" />
+                    </td>
+                </tr>
+                <tr class="advanced">
+                    <td colspan="2">
+                        African American
+                        <input type="checkbox" name="african_american" value="true" />
+                    </td>
+                </tr>
+                <tr class="advanced">
+                    <td colspan="2">
+                        Diabetes
+                        <input type="checkbox" name="diabetes" value="true" />
+                    </td>
+                </tr>
+                <tr>
                     <td class="input-cell"><input id="submit-button" type="submit" value="Calculate" /></td>
                 </tr>
                 <tr>
-                    <td>sp Kt/V = <span class="spktv"><?php echo round($spKtV, 2); ?></span></td>
-                    <td>std Kt/V = <span class="stdktv"><?php echo round($stdKtV, 2); ?></span></td>
+                    <td colspan="3">sp Kt/V = <span class="spktv"><?php if (isset($_GET['avg_sp'])) echo round($spKtV, 2); ?></span></td>
+                </tr>
+                <tr>
+                    <td colspan="3">std Kt/V = <span class="stdktv"><?php if (isset($_GET['std'])) echo round($stdKtV, 2); ?></span></td>
                 </tr>
             </table>
             </form>
+        </div>
+        <div class="footer-ad">
+            <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+            <!-- KtV Leaderboard -->
+            <ins class="adsbygoogle"
+                 style="display:inline-block;width:728px;height:90px"
+                 data-ad-client="ca-pub-4135528310907265"
+                 data-ad-slot="2700562806"></ins>
+            <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
         </div>
 
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.js"></script>
         <script>window.jQuery || document.write('<script src="/js/vendor/jquery-1.11.1.js"><\/script>')</script>
 
-        <script type="text/javascript">
-
-            // Original JavaScript code by Chirp Internet: www.chirp.com.au
-            // Please acknowledge use of this code by including this header.
-
-            function getCookie(name)
-            {
-                var re = new RegExp(name + "=([^;]+)");
-                var value = re.exec(document.cookie);
-                return (value != null) ? unescape(value[1]) : null;
-            }
-
-        </script>
         <script type="text/javascript">
             $("#stdktv-form").submit(function (ev) {
                 ev.preventDefault();
@@ -152,6 +185,11 @@ else
             $("#schedules-select").change(function (ev) {
                 if ($(this).val() !== "")
                     $("#days-input").val($(this).val());
+            });
+
+            $('a[href="#advanced"]').click(function (ev) {
+                ev.preventDefault();
+                $(".advanced").toggle();
             });
         </script>
     </body>

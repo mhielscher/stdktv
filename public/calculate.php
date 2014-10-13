@@ -46,15 +46,15 @@ function validate($type, $value, $nonempty=TRUE)
 if (isset($_POST) && isset($_POST['prebun']))
 {
     $input = $_POST;
-    $type = "json";
+    $return_type = "json";
 }
 elseif (isset($_GET) && isset($_GET['prebun']))
 {
     $input = $_GET;
-    $type = "redirect";
+    $return_type = "redirect";
 }
 
-foreach ($input_field as $name => $type)
+foreach ($input_fields as $name => $type)
 {
     if (!isset($input[$name]))
         $input[$name] = NULL;
@@ -68,7 +68,7 @@ foreach ($input_field as $name => $type)
 
 // Special processing for time formats
 $time_raw = $input['time'];
-if (strpos($time, ':') !== FALSE) // hh:mm (:ss ignored)
+if (strpos($time_raw, ':') !== FALSE) // hh:mm (:ss ignored)
 {
 	$time_elements = explode(':', $time_raw);
 	$time_hours = filter_var($time_elements[0], FILTER_SANITIZE_NUMBER_INT, FILTER_NULL_ON_FAILURE);
@@ -115,7 +115,7 @@ if ($height)
         {
             // Anthropometrically estimated total body water volumes are larger than modeled urea volume...
             // http://www.nature.com/ki/journal/v64/n3/full/4493991a.html
-            $water_volume = $water_volume * 0.824 * (($sex==='male' ? 0.998 : 0.985) * max(0, $age-50)) * ($sex==='male' ? 1 : 1.033) * ($african_american ? 1.043 : 1) * ($diabetic ? 1.033 : 1);
+            $water_volume = $water_volume * 0.824 * (($sex==='male' ? 0.998 : 0.985) * max(1, $age-50)) * ($sex==='male' ? 1 : 1.033) * ($african_american ? 1.043 : 1) * ($diabetic ? 1.033 : 1);
         }
     }
 }
@@ -145,7 +145,7 @@ $stdKtV = ((168*(1-exp(-$eKtV)))/$time)/(((1-exp(-$eKtV))/$spKtV)+(168/($days*$t
 // Had this other one in, but I don't know where I got it
 //$eKtV = 0.924 * $spKtV - 0.395 * $spKtV/$time + 0.056;
 
-if ($type === "json")
+if ($return_type === "json")
 {
     header("Content-type: application/json");
     $return = array();
@@ -153,11 +153,16 @@ if ($type === "json")
     $return['short_sp'] = $short_break_spKtV;
     $return['long_sp'] = $long_break_spKtV;
     $return['avg_sp'] = $spKtV;
+    $return['time'] = $time;
     echo json_encode($return);
 }
-elseif ($type === "redirect")
+elseif ($return_type === "redirect")
 {
-	header("Location: /ktv.php?std=$stdKtV&short_sp=$short_break_spKtV&long_sp=$long_break_spKtV&avg_sp=$spKtV");
+	header("Location: /ktv.php?std=$stdKtV&avg_sp=$spKtV");
+}
+else
+{
+    header("X_BIGPROBLEM: Last else in calculate.php");
 }
 
 ?>
