@@ -21,22 +21,42 @@ else
     <head>
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-        <title>Std Kt/V Calculator for Hemodialysis</title>
+        <title>StdKt/V Calculator for Hemodialysis - Weekly Standardized Kt/V</title>
         <!--<meta name="description" content="">-->
         <meta name="HandheldFriendly" content="True" />
         <meta name="viewport" content="width=device-width" />
         
+        <link rel="canonical" href="http://stdktv.com/" />
+
         <link rel="stylesheet" src="//normalize-css.googlecode.com/svn/trunk/normalize.css" />
         <!-- <link rel="stylesheet" href="css/vendor/normalize.min.css" type="text/css" /> -->
         <link rel="stylesheet" href="/css/main.css" type="text/css" />
         
 	    <script src="/js/vendor/modernizr-latest.js"></script>
+
+        <?php include_once("../includes/analyticstracking.local.php"); ?>
     </head>
     <body>
-        <div class="top-content">
-            <p>Kt/V is a measure of the effectiveness of dialysis. Single pool Kt/V (spKt/V) measures the effectiveness of a single treatment. Standardized Kt/V (stdKt/V) estimates the weekly effectiveness of a dialysis regimen.</p>
+    <!--<div id="ads-header">
+            <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+            <!-- KtV Leaderboard --
+            <ins class="adsbygoogle"
+                 style="display:inline-block;width:728px;height:90px"
+                 data-ad-client="ca-pub-4135528310907265"
+                 data-ad-slot="2700562806"></ins>
+            <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>-->
+        <div id="main-header">
+            <h1>Standard Kt/V Calculator</h1>
         </div>
-        <div class="calculator">
+        <div id="top-content">
+            <p><abbr title="K is clearance/effectiveness of the dialyzer, t is time on the dialysis machine, and V is the patient's total body water.">Kt/V</abbr> (pronounced <em>kay tee over vee</em>) is a measure of the effectiveness of dialysis independent of body type. <strong>Single pool Kt/V</strong> (<abbr>spKt/V</abbr>) measures the effectiveness of a single treatment.</p>
+
+            <p><strong>Standardized Kt/V</strong> (<abbr>stdKt/V</abbr>) estimates the weekly effectiveness of a dialysis regimen.</p>
+        </div>
+        <div id="calculator">
             <form id="stdktv-form" action="/calculate.php" method="GET">
             <table id="stdktv-table">
                 <tr class="table-header">
@@ -48,14 +68,21 @@ else
                     <td>Treatment time:</td>
                     <td class="input-cell"><input type="text" name="time" size="7" required /></td>
                 </tr>
-                <tr>
-                    <td>Treatments per week:</td>
-                    <td class="input-cell"><input type="text" id="days-input" name="days" size="7" required /></td>
+                <tr id="standard-schedule">
+                    <td>Treatments <em>per week</em>:</td>
+                    <td class="input-cell"><input type="number" name="days" size="7" required /></td>
                     <td>
                         <select id="schedules-select" name="schedules">
-                            <option value=""><em>Non-weekly schedules:</em></option>
+                            <option value=""><em>Or choose a schedule:</em></option>
+                            <option value="7">Every day</option>
+                            <option value="6">6 days/week</option>
+                            <option value="5">5 days/week</option>
+                            <option value="4">4 days/week</option>
+                            <option value="3">3 days/week</option>
+                            <option value="5.25">3 on / 1 off</option>
                             <option value="4.6667">2 on / 1 off</option>
                             <option value="3.5">Every other day</option>
+                            <option value="other">Other (advanced)</option>
                         </select>
                         <!--
                         insert dropdown with common schedules
@@ -72,6 +99,14 @@ else
                         -->
                     </td>
                 </tr>
+                <tr id="other-schedule">
+                    <td colspan="3">
+                        <input type="number" name="schedule_treatments" value="" min="1" disabled />
+                        treatments every
+                        <input type="number" name="schedule_duration" value="" min="1" disabled />
+                        days.
+                    </td>
+                </tr>
                 <tr>
                     <td></td>
                     <td>Pre-dialysis</td>
@@ -79,16 +114,16 @@ else
                 </tr>
                 <tr>
                     <td>Blood Urea Nitrogen:</td>
-                    <td class="input-cell"><input type="text" name="prebun" size="7" required /></td>
-                    <td class="input-cell"><input type="text" name="postbun" size="7" required /></td>
+                    <td class="input-cell"><input type="number" name="prebun" size="7" required /></td>
+                    <td class="input-cell"><input type="number" name="postbun" size="7" required /></td>
                 </tr>
                 <tr>
                     <td>Total UF:</td>
-                    <td class="input-cell"><input type="text" name="uf" size="7" required /></td>
+                    <td class="input-cell"><input type="number" name="uf" size="7" required /></td>
                 </tr>
                 <tr>
                     <td>Post Weight:</td>
-                    <td class="input-cell"><input type="text" name="postweight" size="7" required /></td>
+                    <td class="input-cell"><input type="number" name="postweight" size="7" required /></td>
                 </tr>
                 <tr>
                     <td colspan="2">
@@ -96,31 +131,39 @@ else
                     </td>
                 </tr>
                 <tr class="advanced">
+                    <td colspan="3">
+                        <em>Fill in all data you have available; leave the rest blank.</em>
+                    </td>
+                </tr>
+                <tr class="advanced">
                     <td>Age:</td>
-                    <td class="input-cell"><input type="text" name="age" size="3" /></td>
+                    <td class="input-cell"><input type="number" name="age" size="3" disabled /></td>
                 </tr>
                 <tr class="advanced">
                     <td>Height:</td>
-                    <td class="input-cell"><input type="text" name="height" size="5" /></td>
+                    <td class="input-cell"><input type="text" name="height" size="5" disabled /></td>
                 </tr>
                 <tr class="advanced">
                     <td>
-                        Male <input type="radio" name="sex" value="male" />
+                        Male <input type="radio" name="sex" value="male" disabled />
                     </td>
                     <td>
-                        Female <input type="radio" name="sex" value="female" />
+                        Female <input type="radio" name="sex" value="female" disabled />
+                    </td>
+                    <td>
+                        <a href="#removesex">Unselect</a>
                     </td>
                 </tr>
                 <tr class="advanced">
                     <td colspan="2">
                         African American
-                        <input type="checkbox" name="african_american" value="true" />
+                        <input type="checkbox" name="african_american" value="true" disabled />
                     </td>
                 </tr>
                 <tr class="advanced">
                     <td colspan="2">
                         Diabetes
-                        <input type="checkbox" name="diabetes" value="true" />
+                        <input type="checkbox" name="diabetes" value="true" disabled />
                     </td>
                 </tr>
                 <tr>
@@ -135,13 +178,24 @@ else
             </table>
             </form>
         </div>
-        <div class="footer-ad">
+        <!--<div id="ads-right">
             <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-            <!-- KtV Leaderboard -->
+            <!- KtV Side Text ->
+            <ins class="adsbygoogle"
+                 style="display:inline-block;width:300px;height:600px"
+                 data-ad-client="ca-pub-4135528310907265"
+                 data-ad-slot="6542006405"></ins>
+            <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>-->
+        <div id="ads-footer">
+            <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+            <!-- KtV Footer Ad -->
             <ins class="adsbygoogle"
                  style="display:inline-block;width:728px;height:90px"
                  data-ad-client="ca-pub-4135528310907265"
-                 data-ad-slot="2700562806"></ins>
+                 data-ad-slot="3448939207"></ins>
             <script>
             (adsbygoogle = window.adsbygoogle || []).push({});
             </script>
@@ -151,27 +205,40 @@ else
         <script>window.jQuery || document.write('<script src="/js/vendor/jquery-1.11.1.js"><\/script>')</script>
 
         <script type="text/javascript">
+            function updateOtherSchedule() {
+                if ($.isNumeric($(':input[name="schedule_treatments"]').val().trim()) &&
+                    $.isNumeric($(':input[name="schedule_duration"]').val().trim())) {
+                    var daysOn = Math.round($(':input[name="schedule_treatments"]').val().trim());
+                    var daysTotal = Math.round($(':input[name="schedule_duration"]').val().trim());
+                    if (daysOn > daysTotal)
+                        $(':input[name="days"]').val(7);
+                    else
+                        $(':input[name="days"]').val((daysOn/daysTotal * 7).toPrecision(3));
+                }
+            }
+
             $("#stdktv-form").submit(function (ev) {
                 ev.preventDefault();
-                var $form = $(this),
-                    time = $form.find("input[name='time']" ).val(),
-                    days = $form.find("input[name='days']" ).val(),
-                    prebun = $form.find("input[name='prebun']" ).val(),
-                    postbun = $form.find("input[name='postbun']" ).val(),
-                    uf = $form.find("input[name='uf']" ).val(),
-                    postweight = $form.find("input[name='postweight']").val(),
-                    url = $form.attr("action");
+                var url = $('form').attr("action");
+
+                var formData = {};
+                // Grab all enabled inputs except radio buttons and checkboxes
+                $(':input:not(input[type="radio"], :input[type="checkbox"])').each(function(i,e) {
+                    if ($(e).val() !== "" && !$(e).attr("disabled"))
+                        formData[$(e).attr("name")] = $(e).val();
+                });
+                // Handle radio buttons and checkboxes
+                $(':input:checked').each(function(i,e) {
+                    if (!$(e).attr("disabled")) {
+                        formData[$(e).attr("name")] = $(e).val();
+                        console.log("Checked "+$(e).attr("name"))
+                    }
+                });
+                console.log(formData);
 
                 $.post(
                     url,
-                    {
-                        time: time,
-                        days: days,
-                        prebun: prebun,
-                        postbun: postbun,
-                        uf: uf,
-                        postweight: postweight
-                    },
+                    formData,
                     function (data) {
                         $("span.spktv").text(data.avg_sp.toPrecision(3));
                         $("span.stdktv").text(data.std.toPrecision(3));
@@ -183,14 +250,34 @@ else
             });
             
             $("#schedules-select").change(function (ev) {
-                if ($(this).val() !== "")
-                    $("#days-input").val($(this).val());
+                if ($.isNumeric($(this).val().trim())) {
+                    $(':input[name="days"]').val($(this).val());
+                    $("#other-schedule").hide();
+                    $("#other-schedule :input").prop("disabled", true);
+                }
+                else if ($(this).val() === "other") {
+                    $(':input[name="days"]').prop("disabled", true);
+                    $("#other-schedule").show();
+                    $("#other-schedule :input").prop("disabled", false);
+                    updateOtherSchedule();
+                }
             });
 
             $('a[href="#advanced"]').click(function (ev) {
                 ev.preventDefault();
+                // Toggle the 'disabled' property on all advanced options
+                $(".advanced :input").prop("disabled", function (i,val) {
+                    return !val;
+                });
                 $(".advanced").toggle();
             });
+
+            $('a[href="#removesex"]').click(function (ev) {
+                ev.preventDefault();
+                $(':input[name="sex"]').prop("checked", false);
+            });
+
+            $(':input[name="schedule_treatments"], :input[name="schedule_duration"]').change(updateOtherSchedule);
         </script>
     </body>
 </html>

@@ -8,11 +8,13 @@ $input_fields = [
     'uf'=>'float',
     'postweight'=>'float',
     'age'=>'int',
-    'height'=>'int',
+    'height'=>'raw',
     'sex'=>'string',
     'african_american'=>'nullbool',
     'diabetes'=>'nullbool',
-    'access_type'=>'string'
+    'access_type'=>'string',
+    'schedule_treatments'=>'int',
+    'schedule_duration'=>'int'
 ];
 
 function validate($type, $value, $nonempty=TRUE)
@@ -79,6 +81,29 @@ else // in minutes
 	$time = filter_var($input['time'], FILTER_SANITIZE_NUMBER_INT, FILTER_NULL_ON_FAILURE);
 $time = $time/60; // hours
 
+if (isset($input['height']))
+{
+    $height_raw = $input['height'];
+    if (strpos($height_raw, "'") !== FALSE)
+    {
+        $foot_pos = strpos($height_raw, "'");
+        $inch_pos = strpos($height_raw, '"');
+        $height_feet = substr($height_raw, 0, $foot_pos);
+        if ($inch_pos !== FALSE)
+            $height_inches = substr($height_raw, $foot_pos+1, $inch_pos-$foot_pos-1);
+        else
+            $height_inches = 0;
+        $height = $height_feet*12 + $height_inches;
+    }
+    else
+    {
+        $height = round($height_raw);
+        if ($height > 84) // assume no one is taller than 7 feet
+            $height = round($height * 0.3937); // cm
+        // otherwise, inches as entered
+    }
+}
+
 $days = $input['days'];
 $prebun = $input['prebun'];
 $postbun = $input['postbun'];
@@ -86,8 +111,6 @@ $uf = $input['uf'];
 $postweight = $input['postweight'];
 $age = $input['age'];
     // or birthdate
-$height = $input['height'];
-    // heuristic: inches vs cm
 $sex = $input['sex'];
 $african_american = $input['african_american'];
 $diabetes = $input['diabetes'];
@@ -101,28 +124,31 @@ elseif ($access_type === 'avf')
 /* Calculations */
 
 // Estimate Total Body Water
-if ($height)
+if (isset($height) && isset($sex))
 {
     // Watson
-    if ($sex)
-    {
-        if ($sex === 'male')
-            $water_volume = 2.447 - (0.09516 * $age) + 0.1074 * $height + 0.3362 * $postweight;
-        else
-            $water_volume = -2.097 + (0.2466 * $postweight) + (0.1069 * $height);
+    if ($sex === 'male') {
+        $water_volume = 2.447 - (0.09516 * $age) + 0.1074 * $height + 0.3362 * $postweight;
+        $tbw_type = "male";
+    }
+    else {
+        $water_volume = -2.097 + (0.2466 * $postweight) + (0.1069 * $height);
+        $tbw_type = "female";
+    }
 
-        if ($african_american !== NULL && $diabetes !== NULL)
-        {
-            // Anthropometrically estimated total body water volumes are larger than modeled urea volume...
-            // http://www.nature.com/ki/journal/v64/n3/full/4493991a.html
-            $water_volume = $water_volume * 0.824 * (($sex==='male' ? 0.998 : 0.985) * max(1, $age-50)) * ($sex==='male' ? 1 : 1.033) * ($african_american ? 1.043 : 1) * ($diabetic ? 1.033 : 1);
-        }
+    if ($african_american !== NULL && $diabetes !== NULL)
+    {
+        // Anthropometrically estimated total body water volumes are larger than modeled urea volume...
+        // http://www.nature.com/ki/journal/v64/n3/full/4493991a.html
+        $water_volume = $water_volume * 0.824 * (($sex==='male' ? 0.998 : 0.985) * max(1, $age-50)) * ($sex==='male' ? 1 : 1.033) * ($african_american ? 1.043 : 1) * ($diabetic ? 1.033 : 1);
+        $tbw_type = "AA or diabetes";
     }
 }
 else
 {
     // Where did I get this one?? (extracellular water?)
     $water_volume = .2295 * $postweight * 3;
+    $tbw_type = "weight only";
 }
 
 // Improved equation for estimating single-pool Kt/V at higher dialysis frequencies
@@ -148,12 +174,16 @@ $stdKtV = ((168*(1-exp(-$eKtV)))/$time)/(((1-exp(-$eKtV))/$spKtV)+(168/($days*$t
 if ($return_type === "json")
 {
     header("Content-type: application/json");
-    $return = array();
-    $return['std'] = $stdKtV;
-    $return['short_sp'] = $short_break_spKtV;
-    $return['long_sp'] = $long_break_spKtV;
-    $return['avg_sp'] = $spKtV;
-    $return['time'] = $time;
+    $return = array(
+        'std' => $stdKtV,
+        'short_sp' => $short_break_spKtV,
+        'long_sp' => $long_break_spKtV,
+        'avg_sp' => $spKtV,
+        'eKtV' => $eKtV,
+        'time' => $time,
+        'tbw_type' => $tbw_type,
+        'height' => $height
+    );
     echo json_encode($return);
 }
 elseif ($return_type === "redirect")
