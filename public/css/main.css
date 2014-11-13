@@ -52,6 +52,21 @@ body {
     
 }
 
+input[name="time"]
+{
+    width: 3em;
+}
+
+input[type="number"] 
+{
+    width: 4em;
+}
+
+input[name="days"]
+{
+    width: 5em;
+}
+
 .advanced
 {
     display: none;

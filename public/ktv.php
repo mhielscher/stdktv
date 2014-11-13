@@ -37,41 +37,37 @@ else
         <?php include_once("../includes/analyticstracking.local.php"); ?>
     </head>
     <body>
-    <!--<div id="ads-header">
-            <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-            <!-- KtV Leaderboard --
-            <ins class="adsbygoogle"
-                 style="display:inline-block;width:728px;height:90px"
-                 data-ad-client="ca-pub-4135528310907265"
-                 data-ad-slot="2700562806"></ins>
-            <script>
-            (adsbygoogle = window.adsbygoogle || []).push({});
-            </script>
-        </div>-->
         <div id="main-header">
             <h1>Standard Kt/V Calculator</h1>
         </div>
         <div id="top-content">
-            <p><abbr title="K is clearance/effectiveness of the dialyzer, t is time on the dialysis machine, and V is the patient's total body water.">Kt/V</abbr> (pronounced <em>kay tee over vee</em>) is a measure of the effectiveness of dialysis independent of body type. <strong>Single pool Kt/V</strong> (<abbr>spKt/V</abbr>) measures the effectiveness of a single treatment.</p>
+            <p><abbr title="K is clearance/effectiveness of the dialyzer, t is time on the dialysis
+            machine, and V is the patient's total body water.">Kt/V</abbr> (pronounced <em>kay tee
+            over vee</em>) is a measure of the effectiveness of dialysis independent of body type.
+            <strong>Single pool Kt/V</strong> (<abbr>spKt/V</abbr>) measures the effectiveness of a
+            single treatment.</p>
 
-            <p><strong>Standardized Kt/V</strong> (<abbr>stdKt/V</abbr>) estimates the weekly effectiveness of a dialysis regimen.</p>
+            <p><strong>Standardized Kt/V</strong> (<abbr>stdKt/V</abbr>) estimates the weekly
+            effectiveness of a dialysis regimen.</p>
         </div>
         <div id="calculator">
             <form id="stdktv-form" action="/calculate.php" method="GET">
             <table id="stdktv-table">
                 <tr class="table-header">
-                    <td colspan="3">
+                    <td colspan="4">
                         Weekly Standardized Kt/V
                     </td>
                 </tr>
                 <tr>
                     <td>Treatment time:</td>
-                    <td class="input-cell"><input type="text" name="time" size="7" required /></td>
+                    <td class="input-cell"><input type="text" name="time" size="7" pattern="[0-9:]+"
+                    required title="hh:mm or minutes" /></td>
                 </tr>
                 <tr id="standard-schedule">
                     <td>Treatments <em>per week</em>:</td>
-                    <td class="input-cell"><input type="number" name="days" size="7" required /></td>
-                    <td>
+                    <td class="input-cell"><input type="number" name="days" min="0" max="7" required
+                    /></td>
+                    <td colspan="2">
                         <select id="schedules-select" name="schedules">
                             <option value=""><em>Or choose a schedule:</em></option>
                             <option value="7">Every day</option>
@@ -114,8 +110,11 @@ else
                 </tr>
                 <tr>
                     <td>Blood Urea Nitrogen:</td>
-                    <td class="input-cell"><input type="number" name="prebun" size="7" required /></td>
-                    <td class="input-cell"><input type="number" name="postbun" size="7" required /></td>
+                    <td class="input-cell"><input type="number" name="prebun" size="7" step="0.1"
+                    required /></td>
+                    <td class="input-cell"><input type="number" name="postbun" size="7" step="0.1"
+                    required /></td>
+                    <td id="bun-units"><span>mg/dL</span><input type="hidden" name="bun-units" value="mg/dL" /></td>
                 </tr>
                 <tr>
                     <td>Total UF:</td>
@@ -221,6 +220,9 @@ else
                 ev.preventDefault();
                 var url = $('form').attr("action");
 
+                // Re-enable `days` if #other-schedule has disabled it
+                $('input[name="days"]').prop("disabled", false);
+
                 var formData = {};
                 // Grab all enabled inputs except radio buttons and checkboxes
                 $(':input:not(input[type="radio"], :input[type="checkbox"])').each(function(i,e) {
@@ -247,19 +249,23 @@ else
                     }
                 );
                 console.log("Did submit.");
+
+                if ($('#other-schedule').is(':visible'))
+                    $('input[name="days"]').prop("disabled", true);
             });
             
             $("#schedules-select").change(function (ev) {
-                if ($.isNumeric($(this).val().trim())) {
-                    $(':input[name="days"]').val($(this).val());
-                    $("#other-schedule").hide();
-                    $("#other-schedule :input").prop("disabled", true);
-                }
-                else if ($(this).val() === "other") {
+                if ($(this).val() === "other") {
                     $(':input[name="days"]').prop("disabled", true);
                     $("#other-schedule").show();
                     $("#other-schedule :input").prop("disabled", false);
                     updateOtherSchedule();
+                }
+                else {
+                    $(':input[name="days"]').val($(this).val());
+                    $("#other-schedule").hide();
+                    $("#other-schedule :input").prop("disabled", true);
+                    $(':input[name="days"]').prop("disabled", false);
                 }
             });
 
@@ -275,6 +281,32 @@ else
             $('a[href="#removesex"]').click(function (ev) {
                 ev.preventDefault();
                 $(':input[name="sex"]').prop("checked", false);
+            });
+
+            // Heuristic to determine units
+            // Can be manually changed by clicking the unit display
+            $('input[name="prebun"], input[name="postbun"]').change(function (ev) {
+                var prebun = $('input[name="prebun"]').val();
+                var postbun = $('input[name="postbun"]').val();
+                if (prebun > 32 || postbun > 26) {
+                    $('#bun-units span').text("mg/dL");
+                    $('#bun-units input').val("mg/dL");
+                }
+                else if (prebun < 27 || postbun < 12) {
+                    $('#bun-units span').text("mmol/L");
+                    $('#bun-units input').val("mmol/L");
+                }
+            });
+
+            $('#bun-units').click(function (ev) {
+                if ($('#bun-units input').val() === "mg/dL") {
+                    $('#bun-units span').text("mmol/L");
+                    $('#bun-units input').val("mmol/L");
+                }
+                else {
+                    $('#bun-units span').text("mg/dL");
+                    $('#bun-units input').val("mg/dL");
+                }
             });
 
             $(':input[name="schedule_treatments"], :input[name="schedule_duration"]').change(updateOtherSchedule);
