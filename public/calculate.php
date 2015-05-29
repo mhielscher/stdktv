@@ -94,13 +94,14 @@ if (isset($input['height']))
         else
             $height_inches = 0;
         $height = $height_feet*12 + $height_inches;
+        $height = round($height * 2.54); // to cm
     }
     else
     {
         $height = round($height_raw);
-        if ($height > 84) // assume no one is taller than 7 feet
-            $height = round($height * 0.3937); // cm
-        // otherwise, inches as entered
+        if ($height < 100) // assume no one is shorter than 3.5 ft
+            $height = round($height * 2.54); // to cm
+        // otherwise, cm as entered
     }
 }
 
@@ -136,13 +137,13 @@ if (isset($height) && isset($sex))
         $tbw_type = "female";
     }
 
-    if ($african_american !== NULL && $diabetes !== NULL)
-    {
+    //if ($african_american !== NULL && $diabetes !== NULL)
+    //{
         // Anthropometrically estimated total body water volumes are larger than modeled urea volume...
         // http://www.nature.com/ki/journal/v64/n3/full/4493991a.html
         $water_volume = $water_volume * 0.824 * (($sex==='male' ? 0.998 : 0.985) * max(1, $age-50)) * ($sex==='male' ? 1 : 1.033) * ($african_american ? 1.043 : 1) * ($diabetic ? 1.033 : 1);
         $tbw_type = "AA or diabetes";
-    }
+    //}
 }
 else
 {
@@ -182,7 +183,8 @@ if ($return_type === "json")
         'eKtV' => $eKtV,
         'time' => $time,
         'tbw_type' => $tbw_type,
-        'height' => $height
+        'height' => $height,
+        'tbw' => $water_volume
     );
     echo json_encode($return);
 }

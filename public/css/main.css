@@ -52,6 +52,21 @@ body {
     
 }
 
+input[name="time"]
+{
+    width: 3em;
+}
+
+input[type="number"] 
+{
+    width: 4em;
+}
+
+input[name="days"]
+{
+    width: 5em;
+}
+
 .advanced
 {
     display: none;
@@ -62,6 +77,17 @@ body {
     display: none;
 }
 
+#instructions-panel
+{
+    position: absolute;
+    right: 20px;
+    top: 220px;
+    width: 220px;
+    background: #f8f8f8;
+    border: 1px solid #d3d3d3;
+    border-radius: 6px;
+    padding: 8px;
+}
 
 #ads-header
 {
