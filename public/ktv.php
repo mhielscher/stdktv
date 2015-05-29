@@ -65,8 +65,7 @@ else
                 </tr>
                 <tr id="standard-schedule">
                     <td>Treatments <em>per week</em>:</td>
-                    <td class="input-cell"><input type="text" name="days" required
-                    /></td>
+                    <td class="input-cell"><input type="text" name="days" required /></td>
                     <td colspan="2">
                         <select id="schedules-select" name="schedules">
                             <option value=""><em>Or choose a schedule:</em></option>
@@ -97,10 +96,8 @@ else
                 </tr>
                 <tr>
                     <td>Blood Urea Nitrogen:</td>
-                    <td class="input-cell"><input type="text" name="prebun" size="7"
-                    required /></td>
-                    <td class="input-cell"><input type="text" name="postbun" size="7"
-                    required /></td>
+                    <td class="input-cell"><input type="text" name="prebun" size="7" required /></td>
+                    <td class="input-cell"><input type="text" name="postbun" size="7" required /></td>
                     <td id="bun-units"><span>mg/dL</span><input type="hidden" name="bun-units" value="mg/dL" /></td>
                 </tr>
                 <tr>
