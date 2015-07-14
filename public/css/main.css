@@ -52,6 +52,11 @@ body {
     
 }
 
+#stdktv-table td.label-cell
+{
+    text-align: right;
+}
+/*
 input[name="time"]
 {
     width: 3em;
@@ -66,7 +71,7 @@ input[name="days"]
 {
     width: 5em;
 }
-
+*/
 .advanced
 {
     display: none;

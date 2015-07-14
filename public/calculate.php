@@ -76,31 +76,38 @@ if (strpos($time_raw, ':') !== FALSE) // hh:mm (:ss ignored)
 	$time_hours = filter_var($time_elements[0], FILTER_SANITIZE_NUMBER_INT, FILTER_NULL_ON_FAILURE);
 	$time_minutes = filter_var($time_elements[1], FILTER_SANITIZE_NUMBER_INT, FILTER_NULL_ON_FAILURE);
 	$time = $time_hours * 60 + $time_minutes;
+
 }
-else // in minutes
-	$time = filter_var($input['time'], FILTER_SANITIZE_NUMBER_INT, FILTER_NULL_ON_FAILURE);
-$time = $time/60; // hours
+else { // guess at hours vs. minutes
+    if ($time <= 10) // hours
+        $time = filter_var($input['time'], FILTER_SANITIZE_NUMBER_FLOAT, FILTER_NULL_ON_FAILURE | FILTER_FLAG_ALLOW_FRACTION) * 60.0;
+    else // minutes
+        $time = filter_var($input['time'], FILTER_SANITIZE_NUMBER_INT, FILTER_NULL_ON_FAILURE);
+}
+$time = $time/60.0; // hours
 
 if (isset($input['height']))
 {
     $height_raw = $input['height'];
-    if (strpos($height_raw, "'") !== FALSE)
+    $foot_pos = strpos($height_raw, "'");
+    if ($foot_pos !== FALSE)
     {
-        $foot_pos = strpos($height_raw, "'");
         $inch_pos = strpos($height_raw, '"');
+        if ($inch_pos === FALSE)
+            $inch_pos = strlen($height_raw);
         $height_feet = substr($height_raw, 0, $foot_pos);
-        if ($inch_pos !== FALSE)
+        if ($foot_pos+1 != strlen($height_raw)) // allow for X' without inches
             $height_inches = substr($height_raw, $foot_pos+1, $inch_pos-$foot_pos-1);
         else
             $height_inches = 0;
         $height = $height_feet*12 + $height_inches;
-        $height = round($height * 2.54); // to cm
+        $height = round($height * 2.54); // convert to cm
     }
     else
     {
         $height = round($height_raw);
         if ($height < 100) // assume no one is shorter than 3.5 ft
-            $height = round($height * 2.54); // to cm
+            $height = round($height * 2.54); // convert to cm
         // otherwise, cm as entered
     }
 }
@@ -123,18 +130,22 @@ elseif ($access_type === 'avf')
 
 
 /* Calculations */
-
+if (isset($input['ureavolume']) && $input['ureavolume'] !== '')
+{
+    $water_volume = $input['ureavolume'];
+    $tbw_type = "Manual";
+}
 // Estimate Total Body Water
-if (isset($height) && isset($sex))
+elseif (isset($height) && isset($sex) && (isset($age) || $sex == 'female'))
 {
     // Watson
     if ($sex === 'male') {
         $water_volume = 2.447 - (0.09516 * $age) + 0.1074 * $height + 0.3362 * $postweight;
-        $tbw_type = "male";
+        $tbw_type = "Watson, male";
     }
     else {
         $water_volume = -2.097 + (0.2466 * $postweight) + (0.1069 * $height);
-        $tbw_type = "female";
+        $tbw_type = "Watson, female";
     }
 
     //if ($african_american !== NULL && $diabetes !== NULL)
@@ -142,7 +153,7 @@ if (isset($height) && isset($sex))
         // Anthropometrically estimated total body water volumes are larger than modeled urea volume...
         // http://www.nature.com/ki/journal/v64/n3/full/4493991a.html
         $water_volume = $water_volume * 0.824 * (($sex==='male' ? 0.998 : 0.985) * max(1, $age-50)) * ($sex==='male' ? 1 : 1.033) * ($african_american ? 1.043 : 1) * ($diabetic ? 1.033 : 1);
-        $tbw_type = "AA or diabetes";
+        $tbw_type = "Daugirdas urea volume";
     //}
 }
 else

@@ -23,14 +23,14 @@ else
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
         <title>StdKt/V Calculator for Hemodialysis - Weekly Standardized Kt/V</title>
         <!--<meta name="description" content="">-->
-        <meta name="HandheldFriendly" content="True" />
-        <meta name="viewport" content="width=device-width" />
+        <meta name="HandheldFriendly" content="True">
+        <meta name="viewport" content="width=device-width">
         
-        <link rel="canonical" href="http://stdktv.com/" />
+        <link rel="canonical" href="http://stdktv.com/">
 
-        <link rel="stylesheet" src="//normalize-css.googlecode.com/svn/trunk/normalize.css" />
-        <!-- <link rel="stylesheet" href="css/vendor/normalize.min.css" type="text/css" /> -->
-        <link rel="stylesheet" href="/css/main.css" type="text/css" />
+        <link rel="stylesheet" src="//normalize-css.googlecode.com/svn/trunk/normalize.css">
+        <!-- <link rel="stylesheet" href="css/vendor/normalize.min.css" type="text/css"> -->
+        <link rel="stylesheet" href="/css/main.css" type="text/css">
         
 	    <script src="/js/vendor/modernizr-latest.js"></script>
 
@@ -59,21 +59,19 @@ else
                     </td>
                 </tr>
                 <tr>
-                    <td>Treatment time:</td>
-                    <td class="input-cell"><input type="text" name="time" size="7" pattern="[0-9:]+"
-                    required autofocus title="hh:mm or minutes" /></td>
-                </tr>
-                <tr id="standard-schedule">
-                    <td>Treatments <em>per week</em>:</td>
-                    <td class="input-cell"><input type="text" name="days" required /></td>
-                    <td colspan="2">
+                    <td class="label-cell"><label for="time">Treatment time:</label></td>
+                    <td class="input-cell"><input type="text" name="time" size="5" pattern="[0-9:.]+"
+                    required autofocus title="hh:mm, hours, or minutes"></td>
+
+                    <td class="label-cell"><label for="schedules">Treatment schedule:</label></td>
+                    <td id="standard-schedule">
+                        <input type="hidden" name="days" value="3">
                         <select id="schedules-select" name="schedules">
-                            <option value=""><em>Or choose a schedule:</em></option>
                             <option value="7">Every day</option>
                             <option value="6">6 days/week</option>
                             <option value="5">5 days/week</option>
                             <option value="4">4 days/week</option>
-                            <option value="3">3 days/week</option>
+                            <option value="3" selected>3 days/week</option>
                             <option value="5.25">3 on / 1 off</option>
                             <option value="4.6667">2 on / 1 off</option>
                             <option value="3.5">Every other day</option>
@@ -82,10 +80,11 @@ else
                     </td>
                 </tr>
                 <tr id="other-schedule">
+                    <td colspan="1"></td>
                     <td colspan="3">
-                        <input type="text" name="schedule_treatments" value="" disabled />
+                        <input type="text" name="schedule_treatments" value="" size="2" disabled>
                         treatments every
-                        <input type="text" name="schedule_duration" value="" disabled />
+                        <input type="text" name="schedule_duration" value="" size="2" disabled>
                         days.
                     </td>
                 </tr>
@@ -95,68 +94,83 @@ else
                     <td>Post-dialysis</td>
                 </tr>
                 <tr>
-                    <td>Blood Urea Nitrogen:</td>
-                    <td class="input-cell"><input type="text" name="prebun" size="7" required /></td>
-                    <td class="input-cell"><input type="text" name="postbun" size="7" required /></td>
-                    <td id="bun-units"><span>mg/dL</span><input type="hidden" name="bun-units" value="mg/dL" /></td>
+                    <td class="label-cell"><label for="prebun">BUN</label></td>
+                    <td class="input-cell"><input type="text" name="prebun" size="5" required></td>
+                    <td class="input-cell"><input type="text" name="postbun" size="5" required></td>
+                    <td id="bun-units"><span>mg/dL</span><input type="hidden" name="bun-units" value="mg/dL"></td>
                 </tr>
                 <tr>
-                    <td>Total UF:</td>
-                    <td class="input-cell"><input type="text" name="uf" required /></td>
+                    <td class="label-cell"><label for="uf">Total UF</label></td>
+                    <td class="input-cell"><input type="text" name="uf" size="5" required></td>
                 </tr>
                 <tr>
-                    <td>Post Weight:</td>
-                    <td class="input-cell"><input type="text" name="postweight" required /></td>
+                    <td class="label-cell"><label for="postweight">Post Weight</label></td>
+                    <td class="input-cell"><input type="text" name="postweight" size="5" required></td>
                 </tr>
                 <tr>
                     <td colspan="2">
                         <a href="#advanced">Advanced</a>
                     </td>
                 </tr>
-                <tr class="advanced">
+                <tr class="advanced urea-volume-calc">
                     <td colspan="3">
                         <em>Fill in all data you have available; leave the rest blank.</em>
                     </td>
                 </tr>
-                <tr class="advanced">
-                    <td>Age:</td>
-                    <td class="input-cell"><input type="text" name="age" size="3" disabled /></td>
+                <tr class="advanced urea-volume-calc">
+                    <td class="label-cell"><label for="age">Age</label></td>
+                    <td class="input-cell"><input type="text" name="age" size="5" disabled></td>
+                    <td class="label-cell"><label for="height">Height</label></td>
+                    <td class="input-cell"><input type="text" name="height" size="5" disabled></td>
                 </tr>
-                <tr class="advanced">
-                    <td>Height:</td>
-                    <td class="input-cell"><input type="text" name="height" size="5" disabled /></td>
-                </tr>
-                <tr class="advanced">
+                <tr class="advanced urea-volume-calc">
                     <td>
-                        Male <input type="radio" name="sex" value="male" disabled />
+                        Male <input type="radio" name="sex" value="male" disabled>
                     </td>
-                    <td>
-                        Female <input type="radio" name="sex" value="female" disabled />
+                    <td colspan="2">
+                        Female <input type="radio" name="sex" value="female" disabled>
                     </td>
                     <td>
                         <a href="#removesex">Unselect</a>
                     </td>
                 </tr>
-                <tr class="advanced">
+                <tr class="advanced urea-volume-calc">
                     <td colspan="2">
                         African American
-                        <input type="checkbox" name="african_american" value="true" disabled />
+                        <input type="checkbox" name="african_american" value="true" disabled>
                     </td>
                 </tr>
-                <tr class="advanced">
+                <tr class="advanced urea-volume-calc">
                     <td colspan="2">
                         Diabetes
-                        <input type="checkbox" name="diabetes" value="true" disabled />
+                        <input type="checkbox" name="diabetes" value="true" disabled>
                     </td>
                 </tr>
+                <tr id="manual-urea-vol-toggle" style="display: none;">
+                    <td colspan="2">
+                        <a href="#manualureavolume">Enter urea distribution volume manually</a>
+                    </tr>
+                </tr>
+                <tr class="urea-volume-manual" style="display: none;">
+                    <td>Urea Distribution Volume:</td>
+                    <td class="input-cell"><input type="text" name="ureavolume" size="5" disabled></td>
+                </tr>
                 <tr>
-                    <td class="input-cell"><input id="submit-button" type="submit" value="Calculate" /></td>
+                    <td class="input-cell"><input id="submit-button" type="submit" value="Calculate"></td>
                 </tr>
                 <tr>
                     <td colspan="3">sp Kt/V = <span class="spktv"><?php if (isset($_GET['avg_sp'])) echo round($spKtV, 2); ?></span></td>
                 </tr>
                 <tr>
                     <td colspan="3">std Kt/V = <span class="stdktv"><?php if (isset($_GET['std'])) echo round($stdKtV, 2); ?></span></td>
+                </tr>
+                <tr>
+                    <td colspan="3"><a style="font-size: 73%;" href="#">Expand</a></td>
+                    <!-- onclick: show several other rows of calculations:
+                            eKt/V
+                            estimated urea volume
+                            etc.
+                    -->
                 </tr>
             </table>
             </form>
@@ -168,6 +182,13 @@ else
             <div id="instructions-days" class="instructions">
                 <p>Average number of treatments per week</p>
             </div>
+            <!-- ... -->
+            <div id="instructions-sex" class="instructions">
+                <p></p>
+                <p style="font-size: 73%">Note: Accurate urea volume estimates depend on physiological
+                and hormonal sex due to body development and anatomical differences. If this is more
+                complicated than black-and-white, use your best judgement to manually split the
+                difference in body water estimates.</p>
         </div>
         <!--<div id="ads-right">
             <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
@@ -293,6 +314,19 @@ else
             $('a[href="#removesex"]').click(function (ev) {
                 ev.preventDefault();
                 $(':input[name="sex"]').prop("checked", false);
+            });
+
+            $('a[href="#manualureavolume"]').click(function (ev) {
+                ev.preventDefault();
+                $(".urea-volume-calc :input").prop("disabled", function (i,val) {
+                    return !val;
+                });
+                $(".urea-volume-calc").toggle();
+                $(".urea-volume-manual :input").prop("disabled", function (i,val) {
+                    return !val;
+                });
+                $(".urea-volume-manual").toggle();
+                $("#manual-urea-vol-toggle a").text("Estimate urea distribution volume anthropometrically");
             });
 
             // Heuristic to determine units
