@@ -60,7 +60,7 @@ else
                 </tr>
                 <tr>
                     <td class="label-cell"><label for="time">Treatment time:</label></td>
-                    <td class="input-cell"><input type="text" name="time" size="5" pattern="[0-9:.]+"
+                    <td class="input-cell"><input type="text" name="time" size="5" pattern="(\d\d?:\d\d)|(\d+.?\d+)"
                     required autofocus title="hh:mm, hours, or minutes"></td>
 
                     <td class="label-cell"><label for="schedules">Treatment schedule:</label></td>
@@ -114,7 +114,7 @@ else
                 </tr>
                 <tr class="advanced urea-volume-calc">
                     <td colspan="3">
-                        <em>Fill in all data you have available; leave the rest blank.</em>
+                        <em>Fill in all data you have available.</em>
                     </td>
                 </tr>
                 <tr class="advanced urea-volume-calc">
@@ -153,7 +153,7 @@ else
                 </tr>
                 <tr class="urea-volume-manual" style="display: none;">
                     <td>Urea Distribution Volume:</td>
-                    <td class="input-cell"><input type="text" name="ureavolume" size="5" disabled></td>
+                    <td class="input-cell"><input type="text" name="urea_volume" size="5" disabled></td>
                 </tr>
                 <tr>
                     <td class="input-cell"><input id="submit-button" type="submit" value="Calculate"></td>
@@ -215,6 +215,10 @@ else
 
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.js"></script>
         <script>window.jQuery || document.write('<script src="/js/vendor/jquery-1.11.1.js"><\/script>')</script>
+        <script src="http://cdn.jsdelivr.net/jquery.validation/1.14.0/jquery.validate.js"></script>
+        <script src="http://cdn.jsdelivr.net/jquery.validation/1.14.0/additional-methods.js"></script>
+
+        <script src="js/calculate.js"></script>
 
         <script type="text/javascript">
             function updateOtherSchedule() {
@@ -228,27 +232,7 @@ else
                         $(':input[name="days"]').val((daysOn/daysTotal * 7).toPrecision(3));
                 }
             }
-
-            function validate() {
-                // time = valid integer (minutes), valid float < 10 (hours), or hh:mm
-                // days = valid float <= 7, > 0
-                // prebun = valid float
-                // postbun = valid float
-                // bun-units = "mg/dL" or "mmol/L"
-                // uf = valid float > 0
-                // postweight = valid float
-                // if advanced:
-                    // age = valid integer
-                    // height = valid integer (cm or inches) or f'in"
-                    // sex = NULL or "male" or "female"
-                    // african_american = NULL or "true"
-                    // diabetes = NULL or "true"
-            }
-
-            function calculate() {
-
-            }
-
+            /*
             $("#stdktv-form").submit(function (ev) {
                 ev.preventDefault();
                 var url = $('form').attr("action");
@@ -285,6 +269,18 @@ else
 
                 if ($('#other-schedule').is(':visible'))
                     $('input[name="days"]').prop("disabled", true);
+            });
+            */
+
+            $("#stdktv-form").submit(function (ev) {
+                ev.preventDefault();
+
+                var formData = parseForm($('#stdktv-form'));
+                console.log(formData);
+
+                var results = calculate(formData);
+                $('span.spktv').text(results['spKtV'].toPrecision(3));
+                $('span.stdktv').text(results['stdKtV'].toPrecision(3));
             });
             
             $("#schedules-select").change(function (ev) {
@@ -361,6 +357,12 @@ else
             });
 
             $(':input[name="schedule_treatments"], :input[name="schedule_duration"]').change(updateOtherSchedule);
+
+            $(':input[name="postweight"]').change(function (ev) {
+                $(':input[name="uf"]').rules("add", {
+                    max: $(':input[name="postweight"]').val()
+                });
+            });
         </script>
     </body>
 </html>

@@ -152,7 +152,7 @@ elseif (isset($height) && isset($sex) && (isset($age) || $sex == 'female'))
     //{
         // Anthropometrically estimated total body water volumes are larger than modeled urea volume...
         // http://www.nature.com/ki/journal/v64/n3/full/4493991a.html
-        $water_volume = $water_volume * 0.824 * (($sex==='male' ? 0.998 : 0.985) * max(1, $age-50)) * ($sex==='male' ? 1 : 1.033) * ($african_american ? 1.043 : 1) * ($diabetic ? 1.033 : 1);
+        $water_volume = $water_volume * 0.824 * (($sex==='male' ? 0.998 : 0.985) * max(1, $age-50)) * ($sex==='male' ? 1 : 1.033) * ($african_american ? 1.043 : 1) * ($diabetes ? 1.033 : 1);
         $tbw_type = "Daugirdas urea volume";
     //}
 }
